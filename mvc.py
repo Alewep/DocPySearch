@@ -236,7 +236,7 @@ class Controller(tk.Tk):
     def browserFiles(self):
         filename = filedialog.askdirectory()
         self.model.folder_path = filename + "/"
-        self.model.InitializeIndex()
+        self.modelinel.InitializeIndex()
         self.updateStatus(self.model.status)
 
     def search(self, page):

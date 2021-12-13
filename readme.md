@@ -16,6 +16,9 @@ chemins :
 - le chemin de l'index `index_path` (recommandé de ne pas changer)
 - le chemin du dossier `folder_path`  qui contient les divers fichier (peut être aussi changer depuis l'interface)
 
+Le moteur permet d'analyser uniquement des fichier XML bienformé !
+Vous pouver convertir un ensemble de fichiers au format SGML en XML
+avec le script *sgml_to_xml*
 
 # Fonctionnement du moteur
 ##

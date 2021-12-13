@@ -2,15 +2,14 @@ import json
 import math
 from lxml import etree
 import os
-import time
-
+import re
 # define tokenizer
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 import nltk
 
 nltk.download('punkt')
-tokenizer = RegexpTokenizer(r'\w+')
+tokenizer = RegexpTokenizer(r'(\w+)')
 # define lemmatizer
 
 lemmatizer = WordNetLemmatizer()
@@ -86,7 +85,6 @@ class Indexer(object):
                 del temp[word]
         del self.posting_list
         self.posting_list = temp
-        print(self.stop_list)
 
     def toJson(self):
         return json.dumps(self, default=lambda o: o.__dict__)
@@ -112,7 +110,7 @@ class Indexer(object):
             return 0
         return self.tf(word, document) / (math.sqrt(self.documents_normalisation[document]))
 
-    def proximity(self, query:str):
+    def proximity(self, query: str):
         query = query.lower()
         query = tokenizer.tokenize(query)
         # -------
@@ -173,6 +171,7 @@ class Indexer(object):
 
     def correction_query(self, query: str):
         seuil = 0.5
+        biggest = len(query.replace(" ", ""))
         query = query.lower()
         query = tokenizer.tokenize(query)
         # -------
@@ -183,23 +182,38 @@ class Indexer(object):
         for word in query:
             min_distance[word] = math.inf
             for word_index in self.posting_list:
-                distance = nltk.edit_distance(word, word_index)
+                distance = nltk.edit_distance(word, word_index, transpositions=True)
                 if distance < min_distance[word]:
-                    distance[word] = distance
+                    min_distance[word] = distance
                     words[word] = word_index
-            length += min_distance[word]
-
-        if len(query.replace(" ", "")) * seuil >= length:
-            return "".join(words.values())
-        else:
-            return ""
+        return " ".join(words.values())
 
     def query(self, query):
+        if "*" in query:
+            query = self.wildcard(query)
+            return self.cosine(query),None
         resp = self.fuzzy(query)
         if resp == {}:
             new_query = self.correction_query(query)
             return self.fuzzy(new_query), new_query
         return resp, None
+
+    def wildcard(self, query):
+        tokenizer = RegexpTokenizer(r'\w+\*\w+|\w+')
+
+        query = tokenizer.tokenize(query)
+        print(query)
+        new_query = []
+        for word in query:
+            if "*" in word:
+                word = word.replace("*", ".*")
+                for word_index in self.posting_list:
+                    if re.match(r"" + word + r"$", word_index) is not None:
+                        new_query.append(word_index)
+            else:
+                new_query.append(word)
+        print(" ".join(new_query))
+        return " ".join(new_query)
 
     def query_weights(self, query):
         count_words_query = {}

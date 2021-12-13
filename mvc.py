@@ -58,15 +58,15 @@ class Model:
             self.status = Model.NOT_PATH
 
     def executeQuery(self, query, numpage):
+        new_query = None
         if self.old_query is None or self.old_query != query:
             self.old_query = query
-            self.reponse = self.index.fuzzy(query)
-
+            self.reponse, new_query = self.index.query(query)
         lenght = len(self.reponse)
         number_page = math.ceil(lenght / 20)
         first = 20 * numpage if (numpage < number_page) else 20 * (number_page - 1)
         last = first + 20 if (first + 20 < lenght) else lenght
-        return {k: self.reponse[k] for k in list(self.reponse)[first:last]}, lenght, number_page
+        return {k: self.reponse[k] for k in list(self.reponse)[first:last]}, lenght, number_page, new_query
 
     def resume(self, docid):
         doc, id = docid.split("-")
@@ -103,7 +103,7 @@ class StartPage(tk.Frame):
         self.label.configure(font=("Courier", 100, "italic"), bg=BACKGROUND, fg=TITLE_COLOR)
         self.label.pack(side=tk.TOP, pady=(250, 10))
 
-        self.entry = ctk.EntryWithPlaceholder(self,placeholder="Search document with a query")
+        self.entry = ctk.EntryWithPlaceholder(self, placeholder="Search document with a query")
         self.entry.configure(width=50, font=("Courier", 24, "italic"), bg=BACKGROUND)
 
         self.entry.pack(side=tk.TOP, pady=(0, 10))
@@ -145,8 +145,11 @@ class ShowResults(tk.Frame):
         self.page_entry.delete(0, "end")
         self.page_entry.insert(0, "0")
         self.label_page.pack(side=tk.LEFT, anchor=tk.NW, padx=10)
-        self.page_entry.pack(side=tk.LEFT, anchor=tk.NW, padx=10)
-        self.page_entry.bind("<FocusOut>", self.validation_page)
+        self.page_entry.pack(side=tk.LEFT, anchor=tk.NW, padx=0)
+        self.button_page = tk.Button(self.frame_page, text="GO")
+        self.button_page.pack(side=tk.LEFT, anchor=tk.NW, padx=(0,50))
+        self.button_page.bind("<Button-1>", self.validation_page)
+
         self.frame_page.pack(side=tk.TOP, anchor=tk.NW)
         # ------
         self.results = None
@@ -228,19 +231,16 @@ class Controller(tk.Tk):
             self.view.destroy()
         self.view = new_frame
         self.view.pack(fill=tk.BOTH, expand=1)
-        try:
-            self.bind_all("<Button-1>", lambda event: event.widget.focus_set())
-        except:
-            pass
 
     def browserFiles(self):
         filename = filedialog.askdirectory()
         self.model.folder_path = filename + "/"
-        self.modelinel.InitializeIndex()
+        self.model.InitializeIndex()
         self.updateStatus(self.model.status)
 
     def search(self, page):
         query = self.view.entry.get()
+
         if isinstance(self.view, ShowResults):
             self.view.results.destroy()
             if self.view.label_count is not None:
@@ -252,12 +252,11 @@ class Controller(tk.Tk):
             self.view.entry.delete(0, "end")
             self.view.entry.insert(0, query)
 
-        reponse, number_result, number_page = self.model.executeQuery(query, page)
+        reponse, number_result, number_page, new_query = self.model.executeQuery(query, page)
         if reponse == {}:
-            self.view.have_results(0, 0, self.model.old_query, result=False)
+            self.view.have_results(0, 0,query, result=False)
             return
-
-        self.view.have_results(number_result, number_page, self.model.old_query, correction=True)
+        self.view.have_results(number_result, number_page, new_query if new_query is not None else query, correction=(new_query is not None))
         for key, value in reponse.items():
             self.view.add_results(key, self.model.resume(key), value, self.model.old_query)
 

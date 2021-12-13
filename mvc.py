@@ -157,6 +157,7 @@ class ShowResults(tk.Frame):
         self.redirection = None
 
     def add_results(self, head: str, resume: str, pertinance: str, query: str):
+        print(query)
         new_frame = tk.Frame(self.results.scrollable_frame, borderwidth=3, relief="ridge", bg=BACKGROUND)
         new_frame.pack(side=tk.TOP, anchor=tk.NW, expand=True, fill=tk.X, padx=(50, 50), pady=(10, 0))
 
@@ -258,7 +259,7 @@ class Controller(tk.Tk):
             return
         self.view.have_results(number_result, number_page, new_query if new_query is not None else query, correction=(new_query is not None))
         for key, value in reponse.items():
-            self.view.add_results(key, self.model.resume(key), value, self.model.old_query)
+            self.view.add_results(key, self.model.resume(key), value, new_query if new_query is not None else query)
 
     def open_view_documents(self, docid):
         window = tk.Tk()

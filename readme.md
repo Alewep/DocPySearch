@@ -40,7 +40,7 @@ Nous avons fait ici le choix d'ignorer les balises XML est de ne pas les inclure
 ### Minimiser la proximité
 Pour la pertinance des rêquetes nous considerons que plus les mots sont proches entre eux dans le documents 
 plus il est pertinant.
-- prendre le documents qui à la plus petite distance minimale
+- prendre le documents qui à la plus petite distance entre les mots minimale
 
 ### Fusion des deux méthodes
 Nous fusionnons les deux score de cosinus et de distance pour parvenir à un équilibre entre les deux indiquateurs.
@@ -48,7 +48,7 @@ Nous fusionnons les deux score de cosinus et de distance pour parvenir à un éq
 Le moteur l'orsque une requête classique retourne pas de résultats elle déclanche une demande de correction
 gourmande qui permet de retourner des résultats malgé tout.
 ### wildcard
-nous pouvons utilisé le caractère `*` entre les mots cela va permettre d'étendre la requêtes à tout les extension du mot
+nous pouvons utilisé le caractère `*` entre les mots cela va permettre d'étendre la requête à toutes les extension du mot
 ### Interface Graphique
 Nous utilisons la librairie **tkinter** pour dévelloper l'ensemble de l'inteface graphique
 

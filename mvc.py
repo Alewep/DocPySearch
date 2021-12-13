@@ -248,10 +248,9 @@ class Controller(tk.Tk):
             if self.view.redirection is not None:
                 self.view.redirection.destroy()
         else:
-            old = self.view.entry.get()
             self.switch_frame(ShowResults)
             self.view.entry.delete(0, "end")
-            self.view.entry.insert(0, old)
+            self.view.entry.insert(0, query)
 
         reponse, number_result, number_page = self.model.executeQuery(query, page)
         if reponse == {}:

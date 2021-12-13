@@ -112,12 +112,10 @@ class Indexer(object):
             return 0
         return self.tf(word, document) / (math.sqrt(self.documents_normalisation[document]))
 
-    def proximity(self, query):
+    def proximity(self, query:str):
         query = query.lower()
         query = tokenizer.tokenize(query)
         # -------
-        query = query.lower()
-        query = tokenizer.tokenize(query)
         score = {}
         old_word = None
         for word in query:

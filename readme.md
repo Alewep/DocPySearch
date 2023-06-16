@@ -1,58 +1,67 @@
-# Installer le projet 
-### Créer un environnement virtuel python et excuter 
-- Ce projet à été écrit en python 3.7.10
-- Créer un environnement virtuel avec **venv** nommé "venv"  
-`python3 -m venv venv`
-- Démarrer l'environnement virtuel "venv"  
-`source venv/bin/activate`
-- Installer les modules python avec le fichier _requirement_.txt  
-`pip install -r requirements.txt`
-- Démarrer le projet `python mvc.py`
+# Installer le projet
+Ce guide explique comment configurer et exécuter le moteur de recherche basé sur des documents XML.
 
+## Pré-requis
+- Python 3.7.10 est recommandé pour ce projet.
 
-# Configurer le moteur 
-Vous avez à disposition un fichier index.json qui permet d'éditer les 
-chemins :
-- le chemin de l'index `index_path` (recommandé de ne pas changer)
-- le chemin du dossier `folder_path`  qui contient les divers fichier (peut être aussi changer depuis l'interface)
+## Étapes d'installation
+1. **Créez un environnement virtuel**: Ceci est recommandé pour isoler les dépendances du projet.
+    ```
+    python3 -m venv venv
+    ```
+2. **Activez l'environnement virtuel**:
+    ```
+    source venv/bin/activate
+    ```
+3. **Installez les dépendances** requises à partir du fichier `requirements.txt`.
+    ```
+    pip install -r requirements.txt
+    ```
+4. **Lancez le projet**:
+    ```
+    python mvc.py
+    ```
 
-Le moteur permet d'analyser uniquement des fichier XML bienformé !
-Vous pouver convertir un ensemble de fichiers au format SGML en XML
-avec le script *sgml_to_xml*
+# Configuration du moteur
+Un fichier `index.json` est disponible pour vous permettre de configurer les chemins utilisés par le moteur.
+- `index_path`: chemin vers l'index (il est recommandé de ne pas le modifier).
+- `folder_path`: chemin vers le dossier contenant les fichiers XML. Ce chemin peut également être modifié via l'interface utilisateur.
+
+**Note**: Le moteur est uniquement compatible avec des fichiers XML bien formés. Utilisez le script `sgml_to_xml` pour convertir des fichiers SGML en XML si nécessaire.
 
 # Fonctionnement du moteur
-##
+
 ## Indexation
-les différents documents au format xml sont indexé à l'aide 
-de la classe **Indexer** dans *indexer.py* qui à été conçu pour géneraliser l'indexation.
-Nous pourrions à l'avenir utilisé cette classe pour indexer tout type de document.
-Cette classe permet de faire beaucoup de choses :
-- Creer une posting list 
-- Calculer le tf-idf
-- Calculer la normalisation
-- Calculer une stop list à partir d'un seuil en fonction de la document frequency pour chaque mots
+Les documents XML sont indexés à l'aide de la classe `Indexer` présente dans `indexer.py`. Cette classe est conçue de manière générique et peut potentiellement être utilisée pour indexer différents types de documents. Les fonctionnalités incluent:
+- Création d'une posting list.
+- Calcul du TF-IDF.
+- Normalisation.
+- Génération d'une stop-list basée sur la fréquence des documents.
 
+Il existe une fonction nommée `index_xml()` dans `indexer.py` qui utilise la classe `Indexer` spécifiquement pour l'indexation de documents XML. Les balises XML sont ignorées pendant l'indexation.
 
-une fonction qui implémente cette classe pour notre format  (ici xml ) dans *indexer.py* nommé **index_xml()**
-Nous avons fait ici le choix d'ignorer les balises XML est de ne pas les inclures dans l'indexation.
-## Requête
-### Requête de cosinus avec normalisation
-- Calculer le cosinus entre la entre la rêquete et les documents
-- Trier les documents en fonction d'un score donné 
+## Requêtes
+### Similarité cosinus avec normalisation
+- Calcul de la similarité cosinus entre la requête et les documents.
+- Classement des documents en fonction de la similarité.
 
-### Minimiser la proximité
-Pour la pertinance des rêquetes nous considerons que plus les mots sont proches entre eux dans le documents 
-plus il est pertinant.
-- prendre le documents qui à la plus petite distance entre les mots minimale
+### Minimisation de la proximité
+Cette méthode considère que la pertinence d'un document augmente lorsque les termes de la requête sont plus proches les uns des autres dans le document.
+- Sélection des documents avec la plus petite distance minimale entre les termes de la requête.
 
-### Fusion des deux méthodes
-Nous fusionnons les deux score de cosinus et de distance pour parvenir à un équilibre entre les deux indiquateurs.
+### Combinaison des deux méthodes
+Cette approche fusionne les scores de similarité cosinus et de distance minimale pour obtenir un équilibre entre les deux critères.
+
 ### Correction automatique
-Le moteur l'orsque une requête classique retourne pas de résultats elle déclanche une demande de correction
-gourmande qui permet de retourner des résultats malgé tout.
-### wildcard
-nous pouvons utilisé le caractère `*` entre les mots cela va permettre d'étendre la requête à toutes les extension du mot
-### Interface Graphique
-Nous utilisons la librairie **tkinter** pour dévelloper l'ensemble de l'inteface graphique
+Si une requête standard ne renvoie aucun résultat, le moteur déclenche une correction automatique qui tente de renvoyer des résultats pertinents malgré les erreurs potentielles dans la requête.
+
+### Utilisation de caractères génériques (wildcards)
+Le caractère `*` peut être utilisé entre les termes pour étendre la requête à toutes les extensions possibles du terme.
+
+## Interface graphique
+Le projet utilise la bibliothèque **tkinter** pour développer l'interface graphique, permettant une interaction facile avec le moteur de recherche.
+
+# Remarques
+Veillez à ce que les chemins dans `index.json` soient correctement configurés avant de démarrarrer le moteur. Assurez-vous également que tous les fichiers XML soient bien formés et placés dans le dossier spécifié par folder_path.
 
 
